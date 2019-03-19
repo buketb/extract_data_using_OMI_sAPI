@@ -1,0 +1,40 @@
+url = 'https://realized.oxford-man.ox.ac.uk/images/oxfordmanrealizedvolatilityindices.zip'
+#url += 'oxfordmanrealizedvolatilityindices.zip'
+data = requests.get(url, stream=True).content
+z = zi.ZipFile(io.BytesIO(data))
+z.extractall()
+df = pd.read_csv('OxfordManRealizedVolatilityIndices.csv', index_col=0, header=0 )
+rv1 = pd.DataFrame(index=df.index)
+
+df.head()
+
+df.index = [dt.datetime.strptime(str(date), '%Y-%m-%d 00:00:00+%H:%M') for date in rv1.index.values]
+
+#let's do this first for amsterdam exchange index:
+
+aex = pd.DataFrame(df.loc[(df['Symbol'] == '.AEX')])
+
+aex.tail()
+
+aex.rv10.tail()
+
+aex_rk=pd.DataFrame(aex.rk_parzen)
+
+aex_rk.head()
+
+aex_rk.plot(color='red', grid=True, title='AEX realized kernel',
+         figsize=(16, 9), ylim=(0,0.0075));
+         
+#let's do for S&P 500 index:
+
+spx = pd.DataFrame(df.loc[(df['Symbol'] == '.SPX')])
+spx_rk=pd.DataFrame(spx.rk_parzen)
+spx_rk.plot(color='orchid', grid=True, title='SPX realized kernel',
+         figsize=(16, 9), ylim=(0,0.006));
+         
+#DJIA:
+
+dji = pd.DataFrame(df.loc[(df['Symbol'] == '.DJI')])
+dji_rk=pd.DataFrame(dji.rk_parzen)
+dji_rk.plot(color='orange', grid=True, title='DJI realized kernel',
+         figsize=(16, 9), ylim=(0,0.0075));
